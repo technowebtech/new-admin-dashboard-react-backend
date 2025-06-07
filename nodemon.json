@@ -1,0 +1,10 @@
+{
+  "watch": ["server.js", "routes/", "controllers/", "middleware/", "config/", "utils/"],
+  "ignore": ["config/swagger-output.json", "node_modules/", "*.log", ".git/"],
+  "delay": 2000,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js,json",
+  "verbose": false
+}
