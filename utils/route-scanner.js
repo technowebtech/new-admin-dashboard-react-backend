@@ -46,7 +46,7 @@ class RouteScanner {
           const cleanRoutePath = `/${routePath}`
 
           this.registerRoute(cleanRoutePath, routeModule, folderName)
-          console.log(`📁 Auto-registered route: /api/v1${cleanRoutePath} (Schema: ${folderName})`)
+          //console.log(`📁 Auto-registered route: /api/v1${cleanRoutePath} (Schema: ${folderName})`)
         } catch (error) {
           console.error(`❌ Error loading route ${filePath}:`, error.message)
         }

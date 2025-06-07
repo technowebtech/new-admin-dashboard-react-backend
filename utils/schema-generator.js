@@ -38,7 +38,7 @@ class SchemaGenerator {
             tagName: file,
             routePath: file.toLowerCase(),
           }
-          console.log(`📁 Discovered feature folder: ${file}`)
+          //console.log(`📁 Discovered feature folder: ${file}`)
         }
       }
     })
@@ -72,9 +72,9 @@ class SchemaGenerator {
     // Paginated response schema
     this.schemas[`Paginated${featureName}`] = this.generatePaginatedSchema(singularName, featureName)
 
-    console.log(
-      `📋 Generated schemas for ${featureName}: ${singularName}, ${singularName}Create, ${singularName}Update, Paginated${featureName}`,
-    )
+    // //console.log(
+    //   `📋 Generated schemas for ${featureName}: ${singularName}, ${singularName}Create, ${singularName}Update, Paginated${featureName}`,
+    // )
   }
 
   // Generate base schema for an entity
@@ -322,7 +322,7 @@ class SchemaGenerator {
       })
     })
 
-    console.log(`🏷️  Generated ${this.tags.length} tags: ${this.tags.map((t) => t.name).join(", ")}`)
+    //console.log(`🏷️  Generated ${this.tags.length} tags: ${this.tags.map((t) => t.name).join(", ")}`)
   }
 
   // Convert plural to singular

@@ -93,7 +93,7 @@ class APIAnalyzer {
       // Determine the correct tag based on schema name
       const tag = this.getTagFromSchema(schemaName)
 
-      console.log(`🏷️  Tagging: ${method.toUpperCase()} ${fullPath} → ${tag} (Schema: ${schemaName})`)
+      // //console.log(`🏷️  Tagging: ${method.toUpperCase()} ${fullPath} → ${tag} (Schema: ${schemaName})`)
 
       // Find corresponding endpoint from controller analysis
       const endpoint = this.findEndpointByMethod(controllerMethod)

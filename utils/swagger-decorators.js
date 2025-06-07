@@ -110,7 +110,8 @@ const autoDocumentAPI = (req, res, next) => {
     const responseTime = endTime - startTime
 
     // Log API call for documentation
-    console.log(`📝 API Call: ${req.method} ${req.originalUrl} - ${res.statusCode} (${responseTime}ms)`)
+    //console.log(`📝 API Call: ${req.method} ${req.originalUrl} - ${res.statusCode} `)
+    //console.log(`📝 API Call: ${req.method} ${req.originalUrl} - ${res.statusCode} (${responseTime}ms)`)
 
     // Store API metrics
     if (!global.apiMetrics) global.apiMetrics = []

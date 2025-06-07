@@ -1,6 +1,5 @@
 const express = require("express")
 const userController = require("../../../controllers/userController")
-const { validate, schemas } = require("../../../middleware/validation")
 const { authenticateToken, authorize } = require("../../../middleware/auth")
 
 const router = express.Router()
@@ -9,8 +8,8 @@ const router = express.Router()
 router.use(authenticateToken)
 
 router.get("/profile", userController.getProfile)
-router.put("/profile", validate(schemas.updateProfile), userController.updateProfile)
+router.put("/profile",  userController.updateProfile)
 router.get("/list", authorize("admin"), userController.getAllUsers)
-router.get("/:id", validate(schemas.getUserById), userController.getUserById)
+router.get("/:id",  userController.getUserById)
 
 module.exports = router

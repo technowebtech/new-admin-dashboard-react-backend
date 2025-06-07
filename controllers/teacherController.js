@@ -6,12 +6,12 @@ const { executeQuery, getDatabaseFromContext } = require("../config/database")
 const getProfile = async (req, res) => {
   try {
     const teacherId = req.user.id
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
     const teachers = await executeQuery(
       "SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?",
       [teacherId],
-      dbName,
+      
     )
 
     if (teachers.length === 0) {
@@ -41,7 +41,7 @@ const updateProfile = async (req, res) => {
   try {
     const teacherId = req.user.id
     const { name, phone, subject, experience, qualification } = req.body
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
     const updateFields = []
     const updateValues = []
@@ -79,7 +79,7 @@ const updateProfile = async (req, res) => {
 
     const query = `UPDATE teachers SET ${updateFields.join(", ")} WHERE id = ?`
 
-    const result = await executeQuery(query, updateValues, dbName)
+    const result = await executeQuery(query, updateValues, )
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -109,15 +109,15 @@ const getAllTeachers = async (req, res) => {
     const page = Number.parseInt(req.query.page) || 1
     const limit = Number.parseInt(req.query.limit) || 10
     const offset = (page - 1) * limit
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
-    const countResult = await executeQuery("SELECT COUNT(*) as total FROM teachers", [], dbName)
+    const countResult = await executeQuery("SELECT COUNT(*) as total FROM teachers", [], )
     const total = countResult[0].total
 
     const teachers = await executeQuery(
       "SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers ORDER BY created_at DESC LIMIT ? OFFSET ?",
       [limit, offset],
-      dbName,
+      
     )
 
     res.status(200).json({
@@ -147,12 +147,12 @@ const getAllTeachers = async (req, res) => {
 const getTeacherById = async (req, res) => {
   try {
     const { id } = req.params
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
     const teachers = await executeQuery(
       "SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?",
       [id],
-      dbName,
+      
     )
 
     if (teachers.length === 0) {
@@ -181,9 +181,9 @@ const getTeacherById = async (req, res) => {
 const createTeacher = async (req, res) => {
   try {
     const { name, email, phone, subject, experience, qualification } = req.body
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
-    const existingTeachers = await executeQuery("SELECT id FROM teachers WHERE email = ?", [email], dbName)
+    const existingTeachers = await executeQuery("SELECT id FROM teachers WHERE email = ?", [email], )
 
     if (existingTeachers.length > 0) {
       return res.status(409).json({
@@ -195,7 +195,7 @@ const createTeacher = async (req, res) => {
     const result = await executeQuery(
       "INSERT INTO teachers (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
       [name, email, phone, subject, experience, qualification, "active"],
-      dbName,
+      
     )
 
     res.status(201).json({
@@ -223,7 +223,7 @@ const updateTeacher = async (req, res) => {
   try {
     const { id } = req.params
     const { name, phone, subject, experience, qualification } = req.body
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
     const updateFields = []
     const updateValues = []
@@ -261,7 +261,7 @@ const updateTeacher = async (req, res) => {
 
     const query = `UPDATE teachers SET ${updateFields.join(", ")} WHERE id = ?`
 
-    const result = await executeQuery(query, updateValues, dbName)
+    const result = await executeQuery(query, updateValues, )
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -289,9 +289,9 @@ const updateTeacher = async (req, res) => {
 const deleteTeacher = async (req, res) => {
   try {
     const { id } = req.params
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+   
 
-    const result = await executeQuery("DELETE FROM teachers WHERE id = ?", [id], dbName)
+    const result = await executeQuery("DELETE FROM teachers WHERE id = ?", [id], )
 
     if (result.affectedRows === 0) {
       return res.status(404).json({

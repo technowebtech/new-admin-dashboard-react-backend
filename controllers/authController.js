@@ -1,93 +1,80 @@
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
-const { executeQuery, getDatabaseFromContext } = require("../config/database")
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const { executeQuery } = require('../config/database');
 
 /**
  * Register a new user
  */
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+    const { name, email, password } = req.body;
 
     // Check if user already exists
-    const existingUsers = await executeQuery("SELECT id FROM users WHERE email = ?", [email], dbName)
+    const existingUsers = await executeQuery('SELECT id FROM users WHERE email = ?', [email]);
 
     if (existingUsers.length > 0) {
       return res.status(409).json({
-        status: "error",
-        message: "User with this email already exists",
-      })
+        status: 'error',
+        message: 'User with this email already exists'
+      });
     }
 
     // Hash password
-    const saltRounds = 12
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
+    const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
 
     // Insert new user
     const result = await executeQuery(
-      "INSERT INTO users (name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-      [name, email, hashedPassword, "user", "active"],
-      dbName,
-    )
+      'INSERT INTO users (name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+      [name, email, hashedPassword, 'user', 'active']
+    );
 
     res.status(201).json({
-      status: "success",
-      message: "User registered successfully",
+      status: 'success',
+      message: 'User registered successfully',
       data: {
         userId: result.insertId,
         name,
-        email,
-      },
-    })
+        email
+      }
+    });
   } catch (error) {
-    console.error("Register error:", error)
+    console.error('Register error:', error);
     res.status(500).json({
-      status: "error",
-      message: "Internal server error",
-    })
+      status: 'error',
+      message: 'Internal server error'
+    });
   }
-}
+};
 
 /**
  * Login user
  */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body
-    const dbName = getDatabaseFromContext(req) // Internal database selection
+    const { email, password } = req.body;
+    const inputPasswordHash = crypto.createHash('md5').update(password).digest('hex');
 
     // Find user by email
     const users = await executeQuery(
-      "SELECT id, name, email, password, role, status FROM users WHERE email = ?",
-      [email],
-      dbName,
-    )
+      'select * from tbl_user where password=? and (user_name =? or email_id=?)',
+      [inputPasswordHash, email, email]
+    );
 
     if (users.length === 0) {
       return res.status(401).json({
-        status: "error",
-        message: "Invalid email or password",
-      })
+        status: 'error',
+        message: 'Invalid email or password'
+      });
     }
 
-    const user = users[0]
+    const user = users[0];
 
     // Check if user is active
-    if (user.status !== "active") {
+    if (!user?.status) {
       return res.status(401).json({
-        status: "error",
-        message: "Account is not active",
-      })
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password)
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        status: "error",
-        message: "Invalid email or password",
-      })
+        status: 'error',
+        message: 'Account is not active'
+      });
     }
 
     // Generate JWT token
@@ -95,38 +82,38 @@ const login = async (req, res) => {
       {
         userId: user.id,
         email: user.email,
-        role: user.role,
+        role: user.role
       },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" },
-    )
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
 
-    // Update last login
-    await executeQuery("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id], dbName)
+    // // Update last login
+    // await executeQuery('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
 
     res.status(200).json({
-      status: "success",
-      message: "Login successful",
+      status: 'success',
+      message: 'Login successful',
       data: {
         token,
         user: {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role,
-        },
-      },
-    })
+          role: user.role
+        }
+      }
+    });
   } catch (error) {
-    console.error("Login error:", error)
+    console.error('Login error:', error);
     res.status(500).json({
-      status: "error",
-      message: "Internal server error",
-    })
+      status: 'error',
+      message: 'Internal server error'
+    });
   }
-}
+};
 
 module.exports = {
   register,
-  login,
-}
+  login
+};

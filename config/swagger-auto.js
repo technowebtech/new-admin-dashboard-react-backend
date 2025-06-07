@@ -1,14 +1,12 @@
-const swaggerAutogen = require("swagger-autogen")()
-const listEndpoints = require("express-list-endpoints")
 const APIAnalyzer = require("../utils/api-analyzer")
 const SchemaGenerator = require("../utils/schema-generator")
 
 // Enhanced auto-generation with completely dynamic schemas and tags
-const generateSwagger = async (app) => {
-  const outputFile = "./config/swagger-output.json"
+const generateSwagger = async () => {
+  const outputFile = "./public/swagger.json"
 
   try {
-    console.log("🔍 Scanning route structure for dynamic schema generation...")
+    //console.log("🔍 Scanning route structure for dynamic schema generation...")
 
     // Initialize schema generator and scan routes
     const schemaGenerator = new SchemaGenerator()
@@ -18,14 +16,14 @@ const generateSwagger = async (app) => {
     const dynamicSchemas = schemaGenerator.getSchemas()
     const dynamicTags = schemaGenerator.getTags()
 
-    console.log(`📋 Generated ${Object.keys(dynamicSchemas).length} schemas dynamically`)
-    console.log(`🏷️  Generated ${dynamicTags.length} tags dynamically`)
+    //console.log(`📋 Generated ${Object.keys(dynamicSchemas).length} schemas dynamically`)
+    //console.log(`🏷️  Generated ${dynamicTags.length} tags dynamically`)
 
     // Create base document structure
     const doc = {
       openapi: "3.0.0",
       info: {
-        title: "Auto-Generated Node.js API",
+        title: "DPS Ghaziabad API Documentation",
         description: "Completely automated API documentation with dynamic schema and tag generation",
         version: "1.0.0",
         contact: {
@@ -127,25 +125,25 @@ const generateSwagger = async (app) => {
     const fs = require("fs")
     fs.writeFileSync(outputFile, JSON.stringify(swaggerDoc, null, 2))
 
-    console.log("✅ Swagger documentation generated successfully")
-    console.log("📋 Generated sections:")
-    dynamicTags.forEach((tag) => {
-      console.log(`   📁 ${tag.name}: ${tag.description}`)
-    })
+    //console.log("✅ Swagger documentation generated successfully")
+    // //console.log("📋 Generated sections:")
+    // dynamicTags.forEach((tag) => {
+    //   //console.log(`   📁 ${tag.name}: ${tag.description}`)
+    // })
 
-    console.log("📋 Generated schemas:")
-    Object.keys(dynamicSchemas).forEach((schemaName) => {
-      console.log(`   📄 ${schemaName}`)
-    })
+    // //console.log("📋 Generated schemas:")
+    // Object.keys(dynamicSchemas).forEach((schemaName) => {
+    //   //console.log(`   📄 ${schemaName}`)
+    // })
 
     // Log organized paths for debugging
-    console.log("🔗 Organized paths:")
-    Object.keys(organizedPaths).forEach((path) => {
-      Object.keys(organizedPaths[path]).forEach((method) => {
-        const tag = organizedPaths[path][method].tags[0]
-        console.log(`   ${method.toUpperCase()} ${path} → ${tag}`)
-      })
-    })
+    // //console.log("🔗 Organized paths:")
+    // Object.keys(organizedPaths).forEach((path) => {
+    //   Object.keys(organizedPaths[path]).forEach((method) => {
+    //     const tag = organizedPaths[path][method].tags[0]
+    //     //console.log(`   ${method.toUpperCase()} ${path} → ${tag}`)
+    //   })
+    // })
 
     return outputFile
   } catch (error) {
