@@ -5,7 +5,7 @@ const { getDatabaseList } = require('../config/database');
  */
 const getHeath = async (req, res) => {
   res.status(200).json({
-    status: 'success',
+    status: true,
     message: 'Server is running successfully',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
@@ -36,7 +36,7 @@ const getMatrix = async (req, res) => {
   };
 
   res.json({
-    status: 'success',
+    status: true,
     data: {
       summary,
       recentCalls: metrics.slice(-50)

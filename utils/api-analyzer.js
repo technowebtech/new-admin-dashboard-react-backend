@@ -57,6 +57,10 @@ class APIAnalyzer {
           this.scanRouteDirectory(filePath, `/${featureName}`, schemaName)
         }
       } else if (file.endsWith(".js")) {
+        // Skip health and metrics routes from documentation
+        if (filePath.includes("health") || filePath.includes("metrics")) {
+          return
+        }
         this.analyzeRouteFile(filePath, basePath, currentSchema)
       }
     })
@@ -80,6 +84,11 @@ class APIAnalyzer {
       schemaName = "Authentication"
     }
 
+    // Skip health and metrics endpoints
+    if (routePath.includes("/health") || routePath.includes("/metrics")) {
+      return
+    }
+
     // Extract router method calls (get, post, put, delete, etc.)
     const routeRegex = /router\.(get|post|put|delete|patch)\s*\(\s*["']([^"']+)["']\s*,.*?(\w+\.\w+)/g
     let match
@@ -93,7 +102,7 @@ class APIAnalyzer {
       // Determine the correct tag based on schema name
       const tag = this.getTagFromSchema(schemaName)
 
-      // //console.log(`🏷️  Tagging: ${method.toUpperCase()} ${fullPath} → ${tag} (Schema: ${schemaName})`)
+      // console.log(`🏷️  Tagging: ${method.toUpperCase()} ${fullPath} → ${tag} (Schema: ${schemaName})`)
 
       // Find corresponding endpoint from controller analysis
       const endpoint = this.findEndpointByMethod(controllerMethod)
@@ -131,13 +140,16 @@ class APIAnalyzer {
 
   // Create swagger path from endpoint analysis with proper tagging
   createSwaggerPath(path, method, endpoint, tag, schemaName) {
-    if (!this.swaggerPaths[path]) {
-      this.swaggerPaths[path] = {}
+    // Convert Express path params (:id) to Swagger path params ({id})
+    const swaggerPath = path.replace(/:([^/]+)/g, "{$1}")
+
+    if (!this.swaggerPaths[swaggerPath]) {
+      this.swaggerPaths[swaggerPath] = {}
     }
 
     this.tags.add(tag)
 
-    this.swaggerPaths[path][method.toLowerCase()] = {
+    this.swaggerPaths[swaggerPath][method.toLowerCase()] = {
       tags: [tag],
       summary: endpoint.summary,
       description: endpoint.description,
@@ -152,15 +164,18 @@ class APIAnalyzer {
 
   // Create basic swagger path for unanalyzed endpoints with proper tagging
   createBasicSwaggerPath(path, method, controllerMethod, tag, schemaName) {
-    if (!this.swaggerPaths[path]) {
-      this.swaggerPaths[path] = {}
+    // Convert Express path params (:id) to Swagger path params ({id})
+    const swaggerPath = path.replace(/:([^/]+)/g, "{$1}")
+
+    if (!this.swaggerPaths[swaggerPath]) {
+      this.swaggerPaths[swaggerPath] = {}
     }
 
     this.tags.add(tag)
 
     const methodName = controllerMethod.split(".").pop()
 
-    this.swaggerPaths[path][method.toLowerCase()] = {
+    this.swaggerPaths[swaggerPath][method.toLowerCase()] = {
       tags: [tag],
       summary: this.generateSummary(methodName),
       description: `Auto-generated endpoint for ${methodName}`,
@@ -285,18 +300,20 @@ class APIAnalyzer {
   generateParameters(path, endpoint) {
     const parameters = []
 
-    // Path parameters
-    const pathParams = path.match(/:(\w+)/g)
-    if (pathParams) {
-      pathParams.forEach((param) => {
-        const paramName = param.replace(":", "")
-        parameters.push({
-          in: "path",
-          name: paramName,
-          required: true,
-          schema: { type: "string" },
-          description: `${this.capitalizeFirst(paramName)} identifier`,
-        })
+    // Path parameters (without the colon)
+    const pathParamRegex = /:([^/]+)/g
+    let match
+    while ((match = pathParamRegex.exec(path)) !== null) {
+      const paramName = match[1]
+      parameters.push({
+        in: "path",
+        name: paramName,
+        required: true,
+        schema: {
+          type: paramName.includes("id") ? "integer" : "string",
+          example: paramName.includes("id") ? 1 : `example-${paramName}`,
+        },
+        description: `${this.capitalizeFirst(paramName)} identifier`,
       })
     }
 
@@ -331,18 +348,18 @@ class APIAnalyzer {
   // Generate parameters from path only
   generateParametersFromPath(path) {
     const parameters = []
-    const pathParams = path.match(/:(\w+)/g)
 
-    if (pathParams) {
-      pathParams.forEach((param) => {
-        const paramName = param.replace(":", "")
-        parameters.push({
-          in: "path",
-          name: paramName,
-          required: true,
-          schema: { type: "string" },
-          description: `${this.capitalizeFirst(paramName)} identifier`,
-        })
+    // Extract path parameters (without the colon)
+    const pathParamRegex = /:([^/]+)/g
+    let match
+    while ((match = pathParamRegex.exec(path)) !== null) {
+      const paramName = match[1]
+      parameters.push({
+        in: "path",
+        name: paramName,
+        required: true,
+        schema: { type: "string" },
+        description: `${this.capitalizeFirst(paramName)} identifier`,
       })
     }
 

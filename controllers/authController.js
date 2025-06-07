@@ -29,7 +29,7 @@ const register = async (req, res) => {
     );
 
     res.status(201).json({
-      status: 'success',
+      status: true,
       message: 'User registered successfully',
       data: {
         userId: result.insertId,
@@ -92,16 +92,10 @@ const login = async (req, res) => {
     // await executeQuery('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
 
     res.status(200).json({
-      status: 'success',
+      status: true,
       message: 'Login successful',
       data: {
-        token,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
+        token
       }
     });
   } catch (error) {

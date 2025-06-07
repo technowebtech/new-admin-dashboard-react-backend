@@ -1,4 +1,4 @@
-const { executeQuery, getDatabaseFromContext } = require('../config/database');
+const { executeQuery } = require('../config/database');
 
 /**
  * Get current user profile
@@ -7,10 +7,10 @@ const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const users = await executeQuery(
-      'SELECT id, name, email, phone, bio, role, status, created_at, last_login FROM users WHERE id = ?',
-      [userId]
-    );
+    const users = await executeQuery('select * from tbl_user WHERE id = ? AND status = 1', [
+      userId
+    ]);
+    const { password_new, password, temp_password, ...safeUser } = users[0];
 
     if (users.length === 0) {
       return res.status(404).json({
@@ -20,8 +20,8 @@ const getProfile = async (req, res) => {
     }
 
     res.status(200).json({
-      status: 'success',
-      data: users[0]
+      status: true,
+      data: safeUser
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -69,7 +69,7 @@ const updateProfile = async (req, res) => {
 
     const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
 
-    const result = await executeQuery(query, updateValues, );
+    const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -79,7 +79,7 @@ const updateProfile = async (req, res) => {
     }
 
     res.status(200).json({
-      status: 'success',
+      status: true,
       message: 'Profile updated successfully'
     });
   } catch (error) {
@@ -111,7 +111,7 @@ const getAllUsers = async (req, res) => {
     );
 
     res.status(200).json({
-      status: 'success',
+      status: true,
       data: {
         users,
         pagination: {
@@ -137,12 +137,8 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const users = await executeQuery(
-      'SELECT id, name, email, phone, bio, role, status, created_at, last_login FROM users WHERE id = ?',
-      [id],
-      
-    );
+    const users = await executeQuery('SELECT * FROM tbl_user WHERE id = ?', [id.toString()]);
+    console.log('🚀 ~ getUserById ~ users:', users);
 
     if (users.length === 0) {
       return res.status(404).json({
@@ -150,10 +146,11 @@ const getUserById = async (req, res) => {
         message: 'User not found'
       });
     }
+    const { password_new, password, temp_password, ...safeUser } = users[0];
 
     res.status(200).json({
-      status: 'success',
-      data: users[0]
+      status: true,
+      data: safeUser
     });
   } catch (error) {
     console.error('Get user by ID error:', error);

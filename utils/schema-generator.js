@@ -175,45 +175,7 @@ class SchemaGenerator {
         bio: { type: "string", example: "User biography" },
         role: { type: "string", enum: ["user", "admin"], example: "user" },
       },
-      Teacher: {
-        ...commonProperties,
-        phone: { type: "string", example: "1234567890" },
-        subject: { type: "string", example: "Mathematics" },
-        experience: { type: "string", example: "5 years" },
-        qualification: { type: "string", example: "M.Sc Mathematics" },
-      },
-      Student: {
-        ...commonProperties,
-        phone: { type: "string", example: "1234567890" },
-        grade: { type: "string", example: "10th Grade" },
-        section: { type: "string", example: "A" },
-        rollNumber: { type: "string", example: "2024001" },
-      },
-      Course: {
-        name: { type: "string", example: "Course Name" },
-        description: { type: "string", example: "Course description" },
-        duration: { type: "string", example: "6 months" },
-        credits: { type: "integer", example: 3 },
-        status: { type: "string", enum: ["active", "inactive"], example: "active" },
-      },
-      Category: {
-        name: { type: "string", example: "Category Name" },
-        description: { type: "string", example: "Category description" },
-        status: { type: "string", enum: ["active", "inactive"], example: "active" },
-      },
-      Product: {
-        name: { type: "string", example: "Product Name" },
-        description: { type: "string", example: "Product description" },
-        price: { type: "number", example: 99.99 },
-        category: { type: "string", example: "Electronics" },
-        status: { type: "string", enum: ["active", "inactive"], example: "active" },
-      },
-      Order: {
-        orderNumber: { type: "string", example: "ORD-2024-001" },
-        totalAmount: { type: "number", example: 299.99 },
-        status: { type: "string", enum: ["pending", "completed", "cancelled"], example: "pending" },
-        userId: { type: "integer", example: 1 },
-      },
+
     }
 
     return (
@@ -228,13 +190,6 @@ class SchemaGenerator {
   // Get required fields for create operations
   getRequiredFields(entityName) {
     const requiredFieldsMap = {
-      User: ["name", "email"],
-      Teacher: ["name", "email", "subject"],
-      Student: ["name", "email", "grade"],
-      Course: ["name", "duration"],
-      Category: ["name"],
-      Product: ["name", "price"],
-      Order: ["orderNumber", "totalAmount", "userId"],
     }
 
     return requiredFieldsMap[entityName] || ["name"]
@@ -258,8 +213,8 @@ class SchemaGenerator {
       type: "object",
       required: ["email", "password"],
       properties: {
-        email: { type: "string", format: "email", example: "john@example.com" },
-        password: { type: "string", example: "password123" },
+        email: { type: "string", format: "email", example: "payalk.vnd@dpsgs.org" },
+        password: { type: "string", example: "Khanna@12345" },
       },
     }
 
