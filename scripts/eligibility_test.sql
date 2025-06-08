@@ -1,0 +1,10 @@
+CREATE TABLE `eligibility_test` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `class_id` INT NOT NULL,
+  `section_id` INT NOT NULL,
+  `file_name` VARCHAR(45) NULL,
+  `file_path` VARCHAR(45) NULL,
+  `created_by` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

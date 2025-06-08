@@ -4,6 +4,7 @@ const encryptionsDecryption = require('../utils/encriptionDEcription');
 /**
  * Get current user profile
  */
+
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -161,6 +162,13 @@ const getUserById = async (req, res) => {
     });
   }
 };
+
+
+/**
+ * Search users by key-value pair
+ * Method-level enums (apply only to this method)
+ * @paramEnum key: ['id', 'school_id', 'class_name', 'sort_name', 'other_name', 'cps_class_name'] - Search key field
+ */
 const searchByKey = async (req, res) => {
   try {
     const allowedKeys = [
@@ -171,19 +179,21 @@ const searchByKey = async (req, res) => {
       'u.user_type',
       'p.designation_id',
       'p.department_id'
-    ]; // whitelist
+    ];
+    // whitelist
     const { key, value } = req.query;
 
     if (!allowedKeys.includes(key)) {
-      return res.status(400).json({ error: 'Invalid search key' });
+      return res.status(400).json({
+        status: false,
+        message: `Invalid search key. Allowed keys: ${allowedKeys.join(', ')}`
+      });
     }
+
     const searchTerm = `%${value}%`;
 
     const sql = `SELECT *, u.id AS userId, p.id AS profileId, user_type AS role ,TRIM(CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.mid_name, ''), ' ', COALESCE(p.last_name, ''))) AS fullName  FROM tbl_user u  INNER JOIN tbl_profile p ON u.id = p.user_id  WHERE ${key} = ? AND u.status = 1`;
-
-    console.log('🚀 ~ searchUserByName ~ sql:', sql);
     const users = await executeQuery(sql, [searchTerm]);
-
     if (users.length === 0) {
       return res.status(404).json({
         status: false,

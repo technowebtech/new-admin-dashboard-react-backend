@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(authenticateToken);
 router.get('/list', schoolController.getAllSchool);
 router.get('/:id', schoolController.getById);
+router.get('/search/:key/:value', schoolController.searchSchoolByKey);
 
 module.exports = router;

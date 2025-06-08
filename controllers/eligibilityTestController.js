@@ -2,36 +2,34 @@ const { executeQuery } = require('../config/database');
 /**
  * Search class by key-value pair
  * Method-level enums (apply only to this method)
- * @paramEnum key: ['id', 'class_id', 'classsection_name'] - Search class by key field
+ * @paramEnum key: ['id','EligibilityTest'] - Search class by key field
  */
 
-
-
 /**
- * Get current section profile
+ * Get current EligibilityTest profile
  */
 const getProfile = async (req, res) => {
   try {
-    const clasesId = req.user.id;
+    const EligibilityTestId = req.user.id;
 
-    const section = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM section WHERE id = ?',
-      [clasesId]
+    const EligibilityTest = await executeQuery(
+      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM EligibilityTest WHERE id = ?',
+      [EligibilityTestId]
     );
 
-    if (section.length === 0) {
+    if (EligibilityTest.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'EligibilityTest not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: section[0]
+      data: EligibilityTest[0]
     });
   } catch (error) {
-    console.error('Get section profile error:', error);
+    console.error('Get EligibilityTest profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -40,11 +38,11 @@ const getProfile = async (req, res) => {
 };
 
 /**
- * Update current section profile
+ * Update current EligibilityTest profile
  */
 const updateProfile = async (req, res) => {
   try {
-    const clasesId = req.user.id;
+    const EligibilityTestId = req.user.id;
     const { name, phone, subject, experience, qualification } = req.body;
 
     const updateFields = [];
@@ -79,25 +77,25 @@ const updateProfile = async (req, res) => {
     }
 
     updateFields.push('updated_at = NOW()');
-    updateValues.push(clasesId);
+    updateValues.push(EligibilityTestId);
 
-    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE EligibilityTest SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'EligibilityTest not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section profile updated successfully'
+      message: 'EligibilityTest profile updated successfully'
     });
   } catch (error) {
-    console.error('Update section profile error:', error);
+    console.error('Update EligibilityTest profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -106,20 +104,20 @@ const updateProfile = async (req, res) => {
 };
 
 /**
- * Get all section (Admin only)
+ * Get all EligibilityTest (Admin only)
  */
-const getAllSection = async (req, res) => {
+const getAllEligibilityTest = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const countResult = await executeQuery('SELECT COUNT(*) as total FROM class_section', []);
+    const countResult = await executeQuery('SELECT COUNT(*) as total FROM eligibility_test', []);
     const total = countResult[0].total;
 
-    const section = await executeQuery(
-      'select * from class_section ORDER BY class_name asc LIMIT ? OFFSET ?',
-      [limit, offset]
+    const EligibilityTest = await executeQuery(
+      'select * from eligibility_test ORDER BY id desc LIMIT ? OFFSET ?',
+      [limit.toString(), offset.toString()]
     );
 
     res.status(200).json({
@@ -128,10 +126,10 @@ const getAllSection = async (req, res) => {
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: section
+      data: EligibilityTest
     });
   } catch (error) {
-    console.error('Get all section error:', error);
+    console.error('Get all EligibilityTest error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -140,82 +138,53 @@ const getAllSection = async (req, res) => {
 };
 
 /**
- * Get section by ID
+ * Get EligibilityTest by ID
  */
-const getById = async (req, res) => {
+const getEligibilityTestById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const section = await executeQuery('SELECT * FROM class_section WHERE id = ?', [id]);
+    const EligibilityTest = await executeQuery('SELECT * FROM eligibility_test WHERE id = ?', [id]);
 
-    if (section.length === 0) {
+    if (EligibilityTest.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'EligibilityTest not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: section[0]
+      data: EligibilityTest[0]
     });
   } catch (error) {
-    console.error('Get section by ID error:', error);
-    res.status(500).json({
-      status: false,
-      message: 'Internal server error'
-    });
-  }
-};/**
- * Get section by ID
- */
-const getSectionByClassId = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const section = await executeQuery('SELECT * FROM class_section WHERE id = ?', [id]);
-
-    if (section.length === 0) {
-      return res.status(404).json({
-        status: false,
-        message: 'section not found'
-      });
-    }
-
-    res.status(200).json({
-      status: true,
-      data: section[0]
-    });
-  } catch (error) {
-    console.error('Get section by ID error:', error);
+    console.error('Get EligibilityTest by ID error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
     });
   }
 };
+
 /**
- * Get section by key
+ * Get classes by key
  */
 
-const searchSectionByKey = async (req, res) => {
+const searchEligibilityTestByKey = async (req, res) => {
   try {
-    const allowedKeys = ['id', 'class_id', 'classsection_name']; // whitelist
-    const { key, value } = req.params;
+    const allowedKeys = ['id', 'EligibilityTest']; // whitelist
+    const { key, value } = req.query;
 
     if (!allowedKeys.includes(key)) {
-      return res.status(400).json({
-        status: false,
-        message: `Invalid search key. Allowed keys: ${allowedKeys.join(', ')}`
-      });
+      return res.status(400).json({ error: 'Invalid search key' });
     }
     const searchTerm = `%${value}%`;
 
-    const sql = `SELECT * FROM class_section WHERE ${key} = ? `;
+    const sql = `SELECT * FROM EligibilityTest WHERE ${key} = ? `;
 
-    const section = await executeQuery(sql, [searchTerm]);
+    const classes = await executeQuery(sql, [searchTerm]);
 
-    if (section.length === 0) {
+    if (classes.length === 0) {
       return res.status(404).json({
         status: false,
         message: 'Data not found'
@@ -224,7 +193,7 @@ const searchSectionByKey = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      data: section
+      data: classes
     });
   } catch (error) {
     console.error('Get user by ID error:', error);
@@ -236,37 +205,39 @@ const searchSectionByKey = async (req, res) => {
 };
 
 /**
- * Create new section
+ * Create new EligibilityTest
  */
-const createclases = async (req, res) => {
+const createEligibilityTest = async (req, res) => {
   try {
     const { name, email, phone, subject, experience, qualification } = req.body;
 
-    const existingclases = await executeQuery('SELECT id FROM section WHERE email = ?', [email]);
+    const existingEligibilityTest = await executeQuery('SELECT id FROM EligibilityTest WHERE email = ?', [
+      email
+    ]);
 
-    if (existingclases.length > 0) {
+    if (existingEligibilityTest.length > 0) {
       return res.status(409).json({
         status: false,
-        message: 'section with this email already exists'
+        message: 'EligibilityTest with this email already exists'
       });
     }
 
     const result = await executeQuery(
-      'INSERT INTO section (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      'INSERT INTO EligibilityTest (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
       [name, email, phone, subject, experience, qualification, 'active']
     );
 
     res.status(201).json({
       status: true,
-      message: 'section created successfully',
+      message: 'EligibilityTest created successfully',
       data: {
-        clasesId: result.insertId,
+        EligibilityTestId: result.insertId,
         name,
         email
       }
     });
   } catch (error) {
-    console.error('Create section error:', error);
+    console.error('Create EligibilityTest error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -275,9 +246,9 @@ const createclases = async (req, res) => {
 };
 
 /**
- * Update section
+ * Update EligibilityTest
  */
-const updateclases = async (req, res) => {
+const updateEligibilityTest = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, phone, subject, experience, qualification } = req.body;
@@ -316,23 +287,23 @@ const updateclases = async (req, res) => {
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE EligibilityTest SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'EligibilityTest not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section updated successfully'
+      message: 'EligibilityTest updated successfully'
     });
   } catch (error) {
-    console.error('Update section error:', error);
+    console.error('Update EligibilityTest error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -341,27 +312,27 @@ const updateclases = async (req, res) => {
 };
 
 /**
- * Delete section
+ * Delete EligibilityTest
  */
-const deleteclases = async (req, res) => {
+const deleteEligibilityTest = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await executeQuery('DELETE FROM section WHERE id = ?', [id]);
+    const result = await executeQuery('DELETE FROM EligibilityTest WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'EligibilityTest not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section deleted successfully'
+      message: 'EligibilityTest deleted successfully'
     });
   } catch (error) {
-    console.error('Delete section error:', error);
+    console.error('Delete EligibilityTest error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -370,14 +341,12 @@ const deleteclases = async (req, res) => {
 };
 
 module.exports = {
-  getAllSection,
-  getById,
-  getSectionByClassId,
-  searchSectionByKey
+  getAllEligibilityTest,
+  getEligibilityTestById
 
   // updateProfile,
-  // getclasesById,
-  // createclases,
-  // updateclases,
-  // deleteclases
+  // getEligibilityTestById,
+  // createEligibilityTest,
+  // updateEligibilityTest,
+  // deleteEligibilityTest
 };

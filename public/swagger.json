@@ -146,6 +146,369 @@
           }
         }
       },
+      "Department": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Department Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Department description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "DepartmentCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Department Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Department description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "DepartmentUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Department Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Department description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "PaginatedDepartments": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "departments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "total": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Designation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Designation Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Designation description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "DesignationCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Designation Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Designation description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "DesignationUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Designation Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Designation description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "PaginatedDesignations": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "designations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Designation"
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "total": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Eligibility-Test": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Eligibility-Test Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Eligibility-Test description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "Eligibility-TestCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Eligibility-Test Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Eligibility-Test description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "Eligibility-TestUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Eligibility-Test Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Eligibility-Test description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "PaginatedEligibility-Test": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "eligibility-test": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Eligibility-Test"
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "total": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "Role": {
         "type": "object",
         "properties": {
@@ -482,6 +845,127 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/Section"
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "total": {
+                    "type": "integer",
+                    "example": 100
+                  },
+                  "totalPages": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Upload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Upload Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Upload description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "UploadCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Upload Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Upload description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "UploadUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Upload Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Upload description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          }
+        }
+      },
+      "PaginatedUpload": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "upload": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Upload"
                 }
               },
               "pagination": {
@@ -1056,6 +1540,18 @@
       "description": "Classes management endpoints"
     },
     {
+      "name": "Departments",
+      "description": "Departments management endpoints"
+    },
+    {
+      "name": "Designations",
+      "description": "Designations management endpoints"
+    },
+    {
+      "name": "Eligibility-Test",
+      "description": "Eligibility-Test management endpoints"
+    },
+    {
       "name": "Roles",
       "description": "Roles management endpoints"
     },
@@ -1066,6 +1562,10 @@
     {
       "name": "Sections",
       "description": "Sections management endpoints"
+    },
+    {
+      "name": "Upload",
+      "description": "Upload management endpoints"
     },
     {
       "name": "Users",
@@ -1081,6 +1581,386 @@
     }
   ],
   "paths": {
+    "/api/v1/departments/list": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Get All Departments",
+        "description": "Auto-generated endpoint for getAllDepartments",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/departments/{id}": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Get Department By Id",
+        "description": "Auto-generated endpoint for getDepartmentById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Unique identifier",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/departments/type/list": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Get All Departments Type",
+        "description": "Auto-generated endpoint for getAllDepartmentsType",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/departmentstype/{id}": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Get Department Type By Id",
+        "description": "Auto-generated endpoint for getDepartmentTypeById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Unique identifier",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/departments/search/{key}/{value}": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Search Department By Key",
+        "description": "Auto-generated endpoint for searchDepartmentByKey",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "department_name"
+              ],
+              "example": "id"
+            }
+          },
+          {
+            "in": "path",
+            "name": "value",
+            "required": true,
+            "description": "Value identifier",
+            "schema": {
+              "type": "string",
+              "example": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/classes/list": {
       "get": {
         "tags": [
@@ -1174,10 +2054,11 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "description": "Unique identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Id identifier"
+              "type": "integer",
+              "example": 1
+            }
           }
         ],
         "responses": {
@@ -1234,26 +2115,36 @@
         "tags": [
           "Classes"
         ],
-        "summary": "Search By Key",
-        "description": "Auto-generated endpoint for searchByKey",
+        "summary": "Search Class By Key",
+        "description": "Auto-generated endpoint for searchClassByKey",
         "parameters": [
           {
             "in": "path",
             "name": "key",
             "required": true,
+            "description": "",
             "schema": {
-              "type": "string"
-            },
-            "description": "Key identifier"
+              "type": "string",
+              "enum": [
+                "id",
+                "school_id",
+                "class_name",
+                "sort_name",
+                "other_name",
+                "cps_class_name"
+              ],
+              "example": "id"
+            }
           },
           {
             "in": "path",
             "name": "value",
             "required": true,
+            "description": "Value identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Value identifier"
+              "type": "string",
+              "example": ""
+            }
           }
         ],
         "responses": {
@@ -1263,6 +2154,304 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Classe"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/designations/list": {
+      "get": {
+        "tags": [
+          "Designations"
+        ],
+        "summary": "Get All Designations",
+        "description": "Auto-generated endpoint for getAllDesignations",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Designation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/designations/{id}": {
+      "get": {
+        "tags": [
+          "Designations"
+        ],
+        "summary": "Get Designation By Id",
+        "description": "Auto-generated endpoint for getDesignationById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Unique identifier",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Designation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/eligibility-test/list": {
+      "get": {
+        "tags": [
+          "Eligibility-Test"
+        ],
+        "summary": "Get All Eligibility Test",
+        "description": "Auto-generated endpoint for getAllEligibilityTest",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Eligibility-Test"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/eligibility-test/{id}": {
+      "get": {
+        "tags": [
+          "Eligibility-Test"
+        ],
+        "summary": "Get Eligibility Test By Id",
+        "description": "Auto-generated endpoint for getEligibilityTestById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Unique identifier",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Eligibility-Test"
                 }
               }
             }
@@ -1398,10 +2587,11 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "description": "Unique identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Id identifier"
+              "type": "integer",
+              "example": 1
+            }
           }
         ],
         "responses": {
@@ -1546,10 +2736,100 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "description": "Unique identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Id identifier"
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/School"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/schools/search/{key}/{value}": {
+      "get": {
+        "tags": [
+          "Schools"
+        ],
+        "summary": "Search School By Key",
+        "description": "Auto-generated endpoint for searchSchoolByKey",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "school_name",
+                "sort_name",
+                "abbr",
+                "gr_name",
+                "sub_name",
+                "state",
+                "ci",
+                "full_name"
+              ],
+              "example": "id"
+            }
+          },
+          {
+            "in": "path",
+            "name": "value",
+            "required": true,
+            "description": "Value identifier",
+            "schema": {
+              "type": "string",
+              "example": ""
+            }
           }
         ],
         "responses": {
@@ -1694,10 +2974,11 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "description": "Unique identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Id identifier"
+              "type": "integer",
+              "example": 1
+            }
           }
         ],
         "responses": {
@@ -1747,6 +3028,235 @@
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/api/v1/sections/class/{id}": {
+      "get": {
+        "tags": [
+          "Sections"
+        ],
+        "summary": "Get Section By Class Id",
+        "description": "Auto-generated endpoint for getSectionByClassId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Unique identifier",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Section"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/sections/search/{key}/{value}": {
+      "get": {
+        "tags": [
+          "Sections"
+        ],
+        "summary": "Search Section By Key",
+        "description": "Auto-generated endpoint for searchSectionByKey",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "class_id",
+                "classsection_name"
+              ],
+              "example": "id"
+            }
+          },
+          {
+            "in": "path",
+            "name": "value",
+            "required": true,
+            "description": "Value identifier",
+            "schema": {
+              "type": "string",
+              "example": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Section"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/upload/upload/{folderName}": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "Array",
+        "description": "Auto-generated endpoint for array",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "folderName",
+            "required": true,
+            "description": "FolderName identifier",
+            "schema": {
+              "type": "string",
+              "example": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Upload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCreate"
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/users/profile": {
@@ -1964,10 +3474,11 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "description": "Unique identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Id identifier"
+              "type": "integer",
+              "example": 1
+            }
           }
         ],
         "responses": {
@@ -2031,19 +3542,29 @@
             "in": "path",
             "name": "key",
             "required": true,
+            "description": "",
             "schema": {
-              "type": "string"
-            },
-            "description": "Key identifier"
+              "type": "string",
+              "enum": [
+                "id",
+                "school_id",
+                "class_name",
+                "sort_name",
+                "other_name",
+                "cps_class_name"
+              ],
+              "example": "id"
+            }
           },
           {
             "in": "path",
             "name": "value",
             "required": true,
+            "description": "Value identifier",
             "schema": {
-              "type": "string"
-            },
-            "description": "Value identifier"
+              "type": "string",
+              "example": ""
+            }
           }
         ],
         "responses": {

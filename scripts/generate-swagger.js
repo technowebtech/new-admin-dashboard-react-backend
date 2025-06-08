@@ -9,6 +9,6 @@ generateSwagger()
     console.log("📚 You can now view the documentation at /api-docs")
   })
   .catch((err) => {
-    console.error("❌ Error generating swagger documentation:", err)
+    console.error("❌ Error generating swagger documentation -<:", err)
     process.exit(1)
   })

@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const EnumExtractor = require("./enum-extractor")
 
 class APIAnalyzer {
   constructor() {
@@ -9,6 +10,45 @@ class APIAnalyzer {
     this.swaggerPaths = {}
     this.routeStructure = {}
     this.folderStructure = {}
+    this.enumExtractor = new EnumExtractor()
+    this.parameterEnums = this.initializeDefaultEnums()
+  }
+
+  // Initialize default parameter enums (fallback)
+  initializeDefaultEnums() {
+    return {
+      pathParams: {
+        id: {
+          enum: null, // No enum for IDs
+          description: "Unique identifier",
+        },
+      },
+      queryParams: {
+        page: {
+          enum: null,
+          description: "Page number for pagination",
+        },
+        limit: {
+          enum: null,
+          description: "Number of items per page",
+        },
+      },
+      bodyFields: {},
+    }
+  }
+
+  // Extract dynamic enums from controllers and routes
+  extractDynamicEnums() {
+    console.log("🔍 Extracting dynamic enums from controllers and routes...")
+
+    // Clear previous extractions
+    this.enumExtractor.clear()
+
+    // Extract from controllers and routes
+    this.enumExtractor.extractFromControllers("./controllers")
+    this.enumExtractor.extractFromRoutes("./routes")
+
+    console.log("✅ Dynamic enum extraction completed")
   }
 
   // Set folder structure from schema generator
@@ -35,6 +75,10 @@ class APIAnalyzer {
   analyzeRoutes(routesDir = "./routes") {
     if (!fs.existsSync(routesDir)) return
 
+    // First extract dynamic enums
+    this.extractDynamicEnums()
+
+    // Then scan routes
     this.scanRouteDirectory(routesDir, "", "")
   }
 
@@ -70,14 +114,14 @@ class APIAnalyzer {
   analyzeRouteFile(filePath, routePath, schemaName) {
     try {
       const content = fs.readFileSync(filePath, "utf8")
-      this.extractRoutesFromFile(content, routePath, schemaName)
+      this.extractRoutesFromFile(content, routePath, schemaName, filePath)
     } catch (error) {
       console.error(`Error analyzing route file ${filePath}:`, error.message)
     }
   }
 
   // Extract routes from route file content with proper path building and tagging
-  extractRoutesFromFile(content, routePath, schemaName) {
+  extractRoutesFromFile(content, routePath, schemaName, filePath) {
     // Handle special case for auth routes
     if (routePath.includes("auth") || schemaName === "Auth") {
       routePath = "/auth"
@@ -108,10 +152,10 @@ class APIAnalyzer {
       const endpoint = this.findEndpointByMethod(controllerMethod)
 
       if (endpoint) {
-        this.createSwaggerPath(fullPath, method.toUpperCase(), endpoint, tag, schemaName)
+        this.createSwaggerPath(fullPath, method.toUpperCase(), endpoint, tag, schemaName, controllerMethod, filePath)
       } else {
         // Create basic endpoint info if not found in controller
-        this.createBasicSwaggerPath(fullPath, method.toUpperCase(), controllerMethod, tag, schemaName)
+        this.createBasicSwaggerPath(fullPath, method.toUpperCase(), controllerMethod, tag, schemaName, filePath)
       }
     }
   }
@@ -139,7 +183,7 @@ class APIAnalyzer {
   }
 
   // Create swagger path from endpoint analysis with proper tagging
-  createSwaggerPath(path, method, endpoint, tag, schemaName) {
+  createSwaggerPath(path, method, endpoint, tag, schemaName, controllerMethod, filePath) {
     // Convert Express path params (:id) to Swagger path params ({id})
     const swaggerPath = path.replace(/:([^/]+)/g, "{$1}")
 
@@ -149,21 +193,24 @@ class APIAnalyzer {
 
     this.tags.add(tag)
 
+    // Get scoped enums for this specific endpoint
+    const scopedEnums = this.getScopedEnumsForEndpoint(path, method, controllerMethod, filePath)
+
     this.swaggerPaths[swaggerPath][method.toLowerCase()] = {
       tags: [tag],
       summary: endpoint.summary,
       description: endpoint.description,
-      parameters: this.generateParameters(path, endpoint),
+      parameters: this.generateParameters(path, endpoint, scopedEnums),
       responses: this.generateOpenAPIResponses(endpoint.responses, schemaName),
       security: endpoint.security,
       ...(this.needsRequestBody(method) && {
-        requestBody: this.generateRequestBody(endpoint, schemaName),
+        requestBody: this.generateRequestBody(endpoint, schemaName, scopedEnums),
       }),
     }
   }
 
   // Create basic swagger path for unanalyzed endpoints with proper tagging
-  createBasicSwaggerPath(path, method, controllerMethod, tag, schemaName) {
+  createBasicSwaggerPath(path, method, controllerMethod, tag, schemaName, filePath) {
     // Convert Express path params (:id) to Swagger path params ({id})
     const swaggerPath = path.replace(/:([^/]+)/g, "{$1}")
 
@@ -175,17 +222,183 @@ class APIAnalyzer {
 
     const methodName = controllerMethod.split(".").pop()
 
+    // Get scoped enums for this specific endpoint
+    const scopedEnums = this.getScopedEnumsForEndpoint(path, method, controllerMethod, filePath)
+
     this.swaggerPaths[swaggerPath][method.toLowerCase()] = {
       tags: [tag],
       summary: this.generateSummary(methodName),
       description: `Auto-generated endpoint for ${methodName}`,
-      parameters: this.generateParametersFromPath(path),
+      parameters: this.generateParametersFromPath(path, scopedEnums),
       responses: this.getDefaultOpenAPIResponses(schemaName),
       security: this.needsAuthentication(path, methodName) ? [{ bearerAuth: [] }] : [],
       ...(this.needsRequestBody(method) && {
-        requestBody: this.generateBasicRequestBody(schemaName, methodName),
+        requestBody: this.generateBasicRequestBody(schemaName, methodName, scopedEnums),
       }),
     }
+  }
+
+  // Get scoped enums for a specific endpoint with proper hierarchy
+  getScopedEnumsForEndpoint(apiPath, method, controllerMethod, filePath) {
+    const result = {
+      pathParams: {},
+      queryParams: {},
+      bodyFields: {},
+    }
+
+    // Extract controller and method names from controllerMethod
+    const [controllerName, methodName] = controllerMethod.split(".")
+
+    // 1. Start with controller-level enums (most general)
+    if (controllerName && this.extractedEnums.controllers[controllerName]) {
+      Object.entries(this.extractedEnums.controllers[controllerName]).forEach(([key, value]) => {
+        if (key.startsWith("param_")) {
+          const paramName = key.replace("param_", "")
+          result.pathParams[paramName] = value
+        } else if (key.startsWith("query_")) {
+          const queryName = key.replace("query_", "")
+          result.queryParams[queryName] = value
+        } else {
+          result.bodyFields[key] = value
+        }
+      })
+    }
+
+    // 2. Override with method-level enums (more specific)
+    if (controllerName && methodName) {
+      const methodKey = `${controllerName}.${methodName}`
+      if (this.extractedEnums.methods[methodKey]) {
+        Object.entries(this.extractedEnums.methods[methodKey]).forEach(([key, value]) => {
+          if (key.startsWith("param_")) {
+            const paramName = key.replace("param_", "")
+            result.pathParams[paramName] = value
+          } else if (key.startsWith("query_")) {
+            const queryName = key.replace("query_", "")
+            result.queryParams[queryName] = value
+          } else {
+            result.bodyFields[key] = value
+          }
+        })
+      }
+    }
+
+    // 3. Get route name from file path for route-level enums
+    const routeName = this.getRouteNameFromFilePath(filePath)
+    if (routeName && this.extractedEnums.routes[routeName]) {
+      Object.entries(this.extractedEnums.routes[routeName]).forEach(([key, value]) => {
+        if (key.startsWith("param_")) {
+          const paramName = key.replace("param_", "")
+          result.pathParams[paramName] = value
+        } else if (key.startsWith("query_")) {
+          const queryName = key.replace("query_", "")
+          result.queryParams[queryName] = value
+        }
+      })
+    }
+
+    // 4. Override with endpoint-level enums (most specific)
+    const endpointKey = `${routeName}:${method.toUpperCase()} ${this.getPathFromApiPath(apiPath)}`
+    if (this.extractedEnums.endpoints[endpointKey]) {
+      Object.entries(this.extractedEnums.endpoints[endpointKey]).forEach(([key, value]) => {
+        if (key.startsWith("param_")) {
+          const paramName = key.replace("param_", "")
+          result.pathParams[paramName] = value
+        } else if (key.startsWith("query_")) {
+          const queryName = key.replace("query_", "")
+          result.queryParams[queryName] = value
+        }
+      })
+    }
+
+    // 5. Only apply enums to parameters that actually exist in this endpoint
+    const filteredResult = this.filterEnumsForEndpoint(result, apiPath, method)
+
+    // console.log(`🎯 Applied scoped enums for ${method} ${apiPath}:`)
+    // console.log(`   Path params: ${Object.keys(filteredResult.pathParams).join(", ") || "none"}`)
+    // console.log(`   Query params: ${Object.keys(filteredResult.queryParams).join(", ") || "none"}`)
+    // console.log(`   Body fields: ${Object.keys(filteredResult.bodyFields).join(", ") || "none"}`)
+
+    return filteredResult
+  }
+
+  // Get route name from file path
+  getRouteNameFromFilePath(filePath) {
+    const parts = filePath.split(path.sep)
+    const routeIndex = parts.indexOf("routes")
+
+    if (routeIndex !== -1 && routeIndex < parts.length - 1) {
+      return parts
+        .slice(routeIndex + 1)
+        .join("/")
+        .replace(".js", "")
+    }
+
+    return path.basename(filePath, ".js")
+  }
+
+  // Get path from API path (remove /api/v1 prefix)
+  getPathFromApiPath(apiPath) {
+    return apiPath.replace(/^\/api\/v1/, "") || "/"
+  }
+
+  // Filter enums to only apply to parameters that exist in this endpoint
+  filterEnumsForEndpoint(enums, apiPath, method) {
+    const result = {
+      pathParams: {},
+      queryParams: {},
+      bodyFields: {},
+    }
+
+    // Extract actual path parameters from the API path
+    const pathParamRegex = /:([^/]+)/g
+    const actualPathParams = []
+    let match
+    while ((match = pathParamRegex.exec(apiPath)) !== null) {
+      actualPathParams.push(match[1])
+    }
+
+    // Only include path param enums for parameters that actually exist in this path
+    Object.entries(enums.pathParams).forEach(([paramName, enumData]) => {
+      if (actualPathParams.includes(paramName)) {
+        result.pathParams[paramName] = enumData
+        // console.log(`   ✓ Applied path param enum '${paramName}': [${enumData.enum.join(", ")}]`)
+      } else {
+        // console.log(`   ✗ Skipped path param enum '${paramName}' (not in path)`)
+      }
+    })
+
+    // For query parameters, we can be more permissive but still filter based on method type
+    Object.entries(enums.queryParams).forEach(([queryName, enumData]) => {
+      // Only apply query params to GET requests or specific cases
+      if (method === "GET" || this.isQueryParamRelevant(queryName, method)) {
+        result.queryParams[queryName] = enumData
+        console.log(`   ✓ Applied query param enum '${queryName}': [${enumData.enum.join(", ")}]`)
+      } else {
+        console.log(`   ✗ Skipped query param enum '${queryName}' (not relevant for ${method})`)
+      }
+    })
+
+    // For body fields, only apply to methods that have request bodies
+    if (this.needsRequestBody(method)) {
+      Object.entries(enums.bodyFields).forEach(([fieldName, enumData]) => {
+        result.bodyFields[fieldName] = enumData
+        // console.log(`   ✓ Applied body field enum '${fieldName}': [${enumData.enum.join(", ")}]`)
+      })
+    }
+
+    return result
+  }
+
+  // Check if a query parameter is relevant for a specific method
+  isQueryParamRelevant(queryName, method) {
+    // Common query parameters that are relevant for multiple methods
+    const commonQueryParams = ["page", "limit", "sort", "sortBy", "format", "status"]
+    return commonQueryParams.includes(queryName)
+  }
+
+  // Get extracted enums (for access by other methods)
+  get extractedEnums() {
+    return this.enumExtractor.getExtractedEnums()
   }
 
   // Check if endpoint needs authentication
@@ -296,25 +509,37 @@ class APIAnalyzer {
     return pluralName
   }
 
-  // Generate parameters from path and endpoint analysis
-  generateParameters(path, endpoint) {
+  // Generate parameters from path and endpoint analysis with dynamic enum support
+  generateParameters(path, endpoint, scopedEnums) {
     const parameters = []
 
-    // Path parameters (without the colon)
+    // Path parameters (without the colon) with dynamic enum support
     const pathParamRegex = /:([^/]+)/g
     let match
     while ((match = pathParamRegex.exec(path)) !== null) {
       const paramName = match[1]
-      parameters.push({
+      const enumConfig = scopedEnums.pathParams[paramName] || this.parameterEnums.pathParams[paramName]
+
+      const parameter = {
         in: "path",
         name: paramName,
         required: true,
+        description: enumConfig ? enumConfig.description : `${this.capitalizeFirst(paramName)} identifier`,
         schema: {
           type: paramName.includes("id") ? "integer" : "string",
-          example: paramName.includes("id") ? 1 : `example-${paramName}`,
         },
-        description: `${this.capitalizeFirst(paramName)} identifier`,
-      })
+      }
+
+      // Add enum if configured
+      if (enumConfig && enumConfig.enum) {
+        parameter.schema.enum = enumConfig.enum
+        parameter.schema.example = enumConfig.enum[0]
+        console.log(`🎯 Applied enum to path param '${paramName}': [${enumConfig.enum.join(", ")}]`)
+      } else {
+        parameter.schema.example = paramName.includes("id") ? 1 : ``
+      }
+
+      parameters.push(parameter)
     }
 
     // Query parameters from endpoint analysis
@@ -342,28 +567,66 @@ class APIAnalyzer {
       )
     }
 
+    // Add dynamic query enums (only the ones that are scoped to this endpoint)
+    Object.keys(scopedEnums.queryParams).forEach((queryName) => {
+      const enumConfig = scopedEnums.queryParams[queryName]
+      if (enumConfig && enumConfig.enum) {
+        // Check if this parameter already exists
+        const existingParam = parameters.find((p) => p.name === queryName)
+        if (!existingParam) {
+          parameters.push({
+            in: "query",
+            name: queryName,
+            required: false,
+            schema: {
+              type: "string",
+              enum: enumConfig.enum,
+              default: enumConfig.enum[0],
+            },
+            description: enumConfig.description,
+          })
+          // console.log(`🎯 Applied enum to query param '${queryName}': [${enumConfig.enum.join(", ")}]`)
+        }
+      }
+    })
+
     return parameters
   }
 
-  // Generate parameters from path only
-  generateParametersFromPath(path) {
+  // Generate parameters from path only with dynamic enum support
+  generateParametersFromPath(path, scopedEnums) {
     const parameters = []
 
-    // Extract path parameters (without the colon)
+    // Extract path parameters (without the colon) with dynamic enum support
     const pathParamRegex = /:([^/]+)/g
     let match
     while ((match = pathParamRegex.exec(path)) !== null) {
       const paramName = match[1]
-      parameters.push({
+      const enumConfig = scopedEnums.pathParams[paramName] || this.parameterEnums.pathParams[paramName]
+
+      const parameter = {
         in: "path",
         name: paramName,
         required: true,
-        schema: { type: "string" },
-        description: `${this.capitalizeFirst(paramName)} identifier`,
-      })
+        description: enumConfig ? enumConfig.description : `${this.capitalizeFirst(paramName)} identifier`,
+        schema: {
+          type: paramName.includes("id") ? "integer" : "string",
+        },
+      }
+
+      // Add enum if configured
+      if (enumConfig && enumConfig.enum) {
+        parameter.schema.enum = enumConfig.enum
+        parameter.schema.example = enumConfig.enum[0]
+        // console.log(`🎯 Applied enum to path param '${paramName}': [${enumConfig.enum.join(", ")}]`)
+      } else {
+        parameter.schema.example = paramName.includes("id") ? 1 : ``
+      }
+
+      parameters.push(parameter)
     }
 
-    // Add common query parameters for list endpoints
+    // Add common query parameters for list endpoints with dynamic enums
     if (path.includes("/list") || path.includes("/all")) {
       parameters.push(
         {
@@ -383,11 +646,34 @@ class APIAnalyzer {
       )
     }
 
+    // Add dynamic query enums (only the ones that are scoped to this endpoint)
+    Object.keys(scopedEnums.queryParams).forEach((queryName) => {
+      const enumConfig = scopedEnums.queryParams[queryName]
+      if (enumConfig && enumConfig.enum) {
+        // Check if this parameter already exists
+        const existingParam = parameters.find((p) => p.name === queryName)
+        if (!existingParam) {
+          parameters.push({
+            in: "query",
+            name: queryName,
+            required: false,
+            schema: {
+              type: "string",
+              enum: enumConfig.enum,
+              default: enumConfig.enum[0],
+            },
+            description: enumConfig.description,
+          })
+          // console.log(`🎯 Applied enum to query param '${queryName}': [${enumConfig.enum.join(", ")}]`)
+        }
+      }
+    })
+
     return parameters
   }
 
   // Generate request body schema based on schema name (now dynamic)
-  generateRequestBody(endpoint, schemaName) {
+  generateRequestBody(endpoint, schemaName, scopedEnums) {
     const requestSchemaName = this.getRequestSchemaName(endpoint.name, schemaName)
 
     return {
@@ -401,7 +687,7 @@ class APIAnalyzer {
   }
 
   // Generate basic request body for unanalyzed endpoints (now dynamic)
-  generateBasicRequestBody(schemaName, methodName) {
+  generateBasicRequestBody(schemaName, methodName, scopedEnums) {
     const requestSchemaName = this.getRequestSchemaName(methodName, schemaName)
 
     return {
@@ -543,13 +829,16 @@ class APIAnalyzer {
     if (queryMatches) {
       ;[...new Set(queryMatches)].forEach((match) => {
         const paramName = match.replace("req.query.", "")
-        parameters.push({
+
+        const parameter = {
           in: "query",
           name: paramName,
           required: false,
-          schema: { type: "string" },
           description: `${this.capitalizeFirst(paramName)} query parameter`,
-        })
+          schema: { type: "string" },
+        }
+
+        parameters.push(parameter)
       })
     }
 

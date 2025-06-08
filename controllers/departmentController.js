@@ -2,36 +2,34 @@ const { executeQuery } = require('../config/database');
 /**
  * Search class by key-value pair
  * Method-level enums (apply only to this method)
- * @paramEnum key: ['id', 'class_id', 'classsection_name'] - Search class by key field
+ * @paramEnum key: ['id','department_name'] - Search class by key field
  */
 
-
-
 /**
- * Get current section profile
+ * Get current Department profile
  */
 const getProfile = async (req, res) => {
   try {
-    const clasesId = req.user.id;
+    const schoolId = req.user.id;
 
-    const section = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM section WHERE id = ?',
-      [clasesId]
+    const Department = await executeQuery(
+      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM Department WHERE id = ?',
+      [schoolId]
     );
 
-    if (section.length === 0) {
+    if (Department.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'Department not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: section[0]
+      data: Department[0]
     });
   } catch (error) {
-    console.error('Get section profile error:', error);
+    console.error('Get Department profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -40,11 +38,11 @@ const getProfile = async (req, res) => {
 };
 
 /**
- * Update current section profile
+ * Update current Department profile
  */
 const updateProfile = async (req, res) => {
   try {
-    const clasesId = req.user.id;
+    const schoolId = req.user.id;
     const { name, phone, subject, experience, qualification } = req.body;
 
     const updateFields = [];
@@ -79,25 +77,25 @@ const updateProfile = async (req, res) => {
     }
 
     updateFields.push('updated_at = NOW()');
-    updateValues.push(clasesId);
+    updateValues.push(schoolId);
 
-    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE Department SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'Department not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section profile updated successfully'
+      message: 'Department profile updated successfully'
     });
   } catch (error) {
-    console.error('Update section profile error:', error);
+    console.error('Update Department profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -106,19 +104,19 @@ const updateProfile = async (req, res) => {
 };
 
 /**
- * Get all section (Admin only)
+ * Get all Department (Admin only)
  */
-const getAllSection = async (req, res) => {
+const getAllDepartments = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const countResult = await executeQuery('SELECT COUNT(*) as total FROM class_section', []);
+    const countResult = await executeQuery('SELECT COUNT(*) as total FROM department', []);
     const total = countResult[0].total;
 
-    const section = await executeQuery(
-      'select * from class_section ORDER BY class_name asc LIMIT ? OFFSET ?',
+    const Department = await executeQuery(
+      'select * from department ORDER BY department_name asc LIMIT ? OFFSET ?',
       [limit, offset]
     );
 
@@ -128,10 +126,10 @@ const getAllSection = async (req, res) => {
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: section
+      data: Department
     });
   } catch (error) {
-    console.error('Get all section error:', error);
+    console.error('Get all Department error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -140,54 +138,61 @@ const getAllSection = async (req, res) => {
 };
 
 /**
- * Get section by ID
+ * Get all Department Type (Admin only)
  */
-const getById = async (req, res) => {
+const getAllDepartmentsType = async (req, res) => {
   try {
-    const { id } = req.params;
+    const page = Number.parseInt(req.query.page) || 1;
+    const limit = Number.parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
 
-    const section = await executeQuery('SELECT * FROM class_section WHERE id = ?', [id]);
+    const countResult = await executeQuery('SELECT COUNT(*) as total FROM department_type', []);
+    const total = countResult[0].total;
 
-    if (section.length === 0) {
-      return res.status(404).json({
-        status: false,
-        message: 'section not found'
-      });
-    }
+    const Department = await executeQuery(
+      'select * from department ORDER BY department_type asc LIMIT ? OFFSET ?',
+      [limit.toString(), offset.toString()]
+    );
 
     res.status(200).json({
       status: true,
-      data: section[0]
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: Department
     });
   } catch (error) {
-    console.error('Get section by ID error:', error);
+    console.error('Get all Department error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
     });
   }
-};/**
- * Get section by ID
+};
+
+/**
+ * Get Department by ID
  */
-const getSectionByClassId = async (req, res) => {
+const getDepartmentById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const section = await executeQuery('SELECT * FROM class_section WHERE id = ?', [id]);
+    const Department = await executeQuery('SELECT * FROM department WHERE id = ?', [id]);
 
-    if (section.length === 0) {
+    if (Department.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'Department not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: section[0]
+      data: Department[0]
     });
   } catch (error) {
-    console.error('Get section by ID error:', error);
+    console.error('Get Department by ID error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -195,27 +200,53 @@ const getSectionByClassId = async (req, res) => {
   }
 };
 /**
- * Get section by key
+ * Get Department by ID
+ */
+const getDepartmentTypeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const Department = await executeQuery('SELECT * FROM department_type WHERE id = ?', [id]);
+
+    if (Department.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: 'Department not found'
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      data: Department[0]
+    });
+  } catch (error) {
+    console.error('Get Department by ID error:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+/**
+ * Get classes by key
  */
 
-const searchSectionByKey = async (req, res) => {
+const searchDepartmentByKey = async (req, res) => {
   try {
-    const allowedKeys = ['id', 'class_id', 'classsection_name']; // whitelist
-    const { key, value } = req.params;
+    const allowedKeys = ['id', 'department_name']; // whitelist
+    const { key, value } = req.query;
 
     if (!allowedKeys.includes(key)) {
-      return res.status(400).json({
-        status: false,
-        message: `Invalid search key. Allowed keys: ${allowedKeys.join(', ')}`
-      });
+      return res.status(400).json({ error: 'Invalid search key' });
     }
     const searchTerm = `%${value}%`;
 
-    const sql = `SELECT * FROM class_section WHERE ${key} = ? `;
+    const sql = `SELECT * FROM department WHERE ${key} = ? `;
 
-    const section = await executeQuery(sql, [searchTerm]);
+    const classes = await executeQuery(sql, [searchTerm]);
 
-    if (section.length === 0) {
+    if (classes.length === 0) {
       return res.status(404).json({
         status: false,
         message: 'Data not found'
@@ -224,7 +255,7 @@ const searchSectionByKey = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      data: section
+      data: classes
     });
   } catch (error) {
     console.error('Get user by ID error:', error);
@@ -233,40 +264,41 @@ const searchSectionByKey = async (req, res) => {
       message: 'Internal server error'
     });
   }
-};
-
-/**
- * Create new section
+}; /**
+ * Get classes by key
  */
-const createclases = async (req, res) => {
+/**
+ * Create new Department
+ */
+const createschool = async (req, res) => {
   try {
     const { name, email, phone, subject, experience, qualification } = req.body;
 
-    const existingclases = await executeQuery('SELECT id FROM section WHERE email = ?', [email]);
+    const existingschool = await executeQuery('SELECT id FROM Department WHERE email = ?', [email]);
 
-    if (existingclases.length > 0) {
+    if (existingschool.length > 0) {
       return res.status(409).json({
         status: false,
-        message: 'section with this email already exists'
+        message: 'Department with this email already exists'
       });
     }
 
     const result = await executeQuery(
-      'INSERT INTO section (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      'INSERT INTO Department (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
       [name, email, phone, subject, experience, qualification, 'active']
     );
 
     res.status(201).json({
       status: true,
-      message: 'section created successfully',
+      message: 'Department created successfully',
       data: {
-        clasesId: result.insertId,
+        schoolId: result.insertId,
         name,
         email
       }
     });
   } catch (error) {
-    console.error('Create section error:', error);
+    console.error('Create Department error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -275,9 +307,9 @@ const createclases = async (req, res) => {
 };
 
 /**
- * Update section
+ * Update Department
  */
-const updateclases = async (req, res) => {
+const updateschool = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, phone, subject, experience, qualification } = req.body;
@@ -316,23 +348,23 @@ const updateclases = async (req, res) => {
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE Department SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'Department not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section updated successfully'
+      message: 'Department updated successfully'
     });
   } catch (error) {
-    console.error('Update section error:', error);
+    console.error('Update Department error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -341,27 +373,27 @@ const updateclases = async (req, res) => {
 };
 
 /**
- * Delete section
+ * Delete Department
  */
-const deleteclases = async (req, res) => {
+const deleteschool = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await executeQuery('DELETE FROM section WHERE id = ?', [id]);
+    const result = await executeQuery('DELETE FROM Department WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'section not found'
+        message: 'Department not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'section deleted successfully'
+      message: 'Department deleted successfully'
     });
   } catch (error) {
-    console.error('Delete section error:', error);
+    console.error('Delete Department error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -370,14 +402,15 @@ const deleteclases = async (req, res) => {
 };
 
 module.exports = {
-  getAllSection,
-  getById,
-  getSectionByClassId,
-  searchSectionByKey
+  getAllDepartments,
+  getDepartmentById,
+  searchDepartmentByKey,
+  getAllDepartmentsType,
+  getDepartmentTypeById
 
   // updateProfile,
-  // getclasesById,
-  // createclases,
-  // updateclases,
-  // deleteclases
+  // getschoolById,
+  // createschool,
+  // updateschool,
+  // deleteschool
 };

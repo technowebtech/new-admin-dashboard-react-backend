@@ -47,11 +47,8 @@ const getAllRoles = async (req, res) => {
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("🚀 ~ getById ~ id:", id)
-    console.log("🚀 ~ getById ~ req.params:", req.params)
 
     const roles = await executeQuery('select * from user_type where id = ?', [id.toString()]);
-    console.log("🚀 ~ getById ~ roles:", roles)
 
     if (roles.length === 0) {
       return res.status(404).json({

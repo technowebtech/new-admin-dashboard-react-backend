@@ -1,4 +1,9 @@
 const { executeQuery } = require('../config/database');
+/**
+ * Search class by key-value pair
+ * Method-level enums (apply only to this method)
+ * @paramEnum key: ['id','school_name','sort_name','abbr','gr_name','sub_name','state','ci','full_name'] - Search class by key field
+ */
 
 /**
  * Get current school profile
@@ -112,7 +117,7 @@ const getAllSchool = async (req, res) => {
 
     const school = await executeQuery(
       'select * from tbl_school ORDER BY school_name asc LIMIT ? OFFSET ?',
-      [limit, offset]
+      [limit.toString(), offset.toString()]
     );
 
     res.status(200).json({
@@ -165,7 +170,7 @@ const getById = async (req, res) => {
  * Get classes by key
  */
 
-const searchByKey = async (req, res) => {
+const searchSchoolByKey = async (req, res) => {
   try {
     const allowedKeys = [
       'id',
@@ -345,7 +350,7 @@ const deleteschool = async (req, res) => {
 module.exports = {
   getAllSchool,
   getById,
-  searchByKey
+  searchSchoolByKey
   // updateProfile,
   // getschoolById,
   // createschool,

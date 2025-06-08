@@ -9,5 +9,7 @@ router.use(authenticateToken);
 
 router.get('/list', sectionController.getAllSection);
 router.get('/:id', sectionController.getById);
+router.get('/class/:id', sectionController.getSectionByClassId);
+router.get("/search/:key/:value",  sectionController.searchSectionByKey)
 
 module.exports = router;

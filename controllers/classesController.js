@@ -161,10 +161,11 @@ const getById = async (req, res) => {
   }
 };
 /**
- * Get classes by key
+ * Search class by key-value pair
+ * Method-level enums (apply only to this method)
+ * @paramEnum key: ['id','school_id','class_name','sort_name','other_name','cps_class_name'] - Search class by key field
  */
-
-const searchByKey = async (req, res) => {
+const searchClassByKey = async (req, res) => {
   try {
     const allowedKeys = [
       'id',
@@ -174,10 +175,13 @@ const searchByKey = async (req, res) => {
       'other_name',
       'cps_class_name'
     ]; // whitelist
-    const { key, value } = req.query;
+    const { key, value } = req.params;
 
     if (!allowedKeys.includes(key)) {
-      return res.status(400).json({ error: 'Invalid search key' });
+      return res.status(400).json({
+        status: false,
+        message: `Invalid search key. Allowed keys: ${allowedKeys.join(', ')}`
+      });
     }
     const searchTerm = `%${value}%`;
 
@@ -342,7 +346,7 @@ const deleteclases = async (req, res) => {
 module.exports = {
   getAllClasses,
   getById,
-  searchByKey
+  searchClassByKey
   // updateProfile,
   // getclasesById,
   // createclases,
