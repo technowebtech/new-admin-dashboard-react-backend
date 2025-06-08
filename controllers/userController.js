@@ -16,7 +16,7 @@ const getProfile = async (req, res) => {
 
     if (users.length === 0) {
       return res.status(404).json({
-        status: 'error',
+        status: false,
         message: 'User not found'
       });
     }
@@ -28,7 +28,7 @@ const getProfile = async (req, res) => {
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -61,7 +61,7 @@ const updateProfile = async (req, res) => {
 
     if (updateFields.length === 0) {
       return res.status(400).json({
-        status: 'error',
+        status: false,
         message: 'No fields to update'
       });
     }
@@ -75,7 +75,7 @@ const updateProfile = async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
-        status: 'error',
+        status: false,
         message: 'User not found'
       });
     }
@@ -87,7 +87,7 @@ const updateProfile = async (req, res) => {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -127,7 +127,7 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     console.error('Get all users error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -143,7 +143,7 @@ const getUserById = async (req, res) => {
 
     if (users.length === 0) {
       return res.status(404).json({
-        status: 'error',
+        status: false,
         message: 'User not found'
       });
     }
@@ -156,7 +156,49 @@ const getUserById = async (req, res) => {
   } catch (error) {
     console.error('Get user by ID error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
+      message: 'Internal server error'
+    });
+  }
+};
+const searchByKey = async (req, res) => {
+  try {
+    const allowedKeys = [
+      'u.id',
+      'p.first_name',
+      'p.mid_name',
+      'p.last_name',
+      'u.user_type',
+      'p.designation_id',
+      'p.department_id'
+    ]; // whitelist
+    const { key, value } = req.query;
+
+    if (!allowedKeys.includes(key)) {
+      return res.status(400).json({ error: 'Invalid search key' });
+    }
+    const searchTerm = `%${value}%`;
+
+    const sql = `SELECT *, u.id AS userId, p.id AS profileId, user_type AS role ,TRIM(CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.mid_name, ''), ' ', COALESCE(p.last_name, ''))) AS fullName  FROM tbl_user u  INNER JOIN tbl_profile p ON u.id = p.user_id  WHERE ${key} = ? AND u.status = 1`;
+
+    console.log('🚀 ~ searchUserByName ~ sql:', sql);
+    const users = await executeQuery(sql, [searchTerm]);
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      data: users
+    });
+  } catch (error) {
+    console.error('Get user by ID error:', error);
+    res.status(500).json({
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -166,5 +208,6 @@ module.exports = {
   getProfile,
   updateProfile,
   getAllUsers,
-  getUserById
+  getUserById,
+  searchByKey
 };

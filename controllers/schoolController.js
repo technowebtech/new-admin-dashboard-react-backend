@@ -1,30 +1,30 @@
 const { executeQuery } = require('../config/database');
 
 /**
- * Get current teacher profile
+ * Get current school profile
  */
 const getProfile = async (req, res) => {
   try {
-    const teacherId = req.user.id;
+    const schoolId = req.user.id;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?',
-      [teacherId]
+    const school = await executeQuery(
+      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM school WHERE id = ?',
+      [schoolId]
     );
 
-    if (teachers.length === 0) {
+    if (school.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'school not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: teachers[0]
+      data: school[0]
     });
   } catch (error) {
-    console.error('Get teacher profile error:', error);
+    console.error('Get school profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -33,11 +33,11 @@ const getProfile = async (req, res) => {
 };
 
 /**
- * Update current teacher profile
+ * Update current school profile
  */
 const updateProfile = async (req, res) => {
   try {
-    const teacherId = req.user.id;
+    const schoolId = req.user.id;
     const { name, phone, subject, experience, qualification } = req.body;
 
     const updateFields = [];
@@ -72,25 +72,25 @@ const updateProfile = async (req, res) => {
     }
 
     updateFields.push('updated_at = NOW()');
-    updateValues.push(teacherId);
+    updateValues.push(schoolId);
 
-    const query = `UPDATE teachers SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE school SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'school not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher profile updated successfully'
+      message: 'school profile updated successfully'
     });
   } catch (error) {
-    console.error('Update teacher profile error:', error);
+    console.error('Update school profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -99,36 +99,32 @@ const updateProfile = async (req, res) => {
 };
 
 /**
- * Get all teachers (Admin only)
+ * Get all school (Admin only)
  */
-const getAllTeachers = async (req, res) => {
+const getAllSchool = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const countResult = await executeQuery('SELECT COUNT(*) as total FROM teachers', []);
+    const countResult = await executeQuery('SELECT COUNT(*) as total FROM tbl_school', []);
     const total = countResult[0].total;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers ORDER BY created_at DESC LIMIT ? OFFSET ?',
+    const school = await executeQuery(
+      'select * from tbl_school ORDER BY school_name asc LIMIT ? OFFSET ?',
       [limit, offset]
     );
 
     res.status(200).json({
       status: true,
-      data: {
-        teachers,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: school
     });
   } catch (error) {
-    console.error('Get all teachers error:', error);
+    console.error('Get all school error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -137,30 +133,27 @@ const getAllTeachers = async (req, res) => {
 };
 
 /**
- * Get teacher by ID
+ * Get school by ID
  */
-const getTeacherById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?',
-      [id]
-    );
+    const school = await executeQuery('SELECT * FROM tbl_school WHERE id = ?', [id]);
 
-    if (teachers.length === 0) {
+    if (school.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'school not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: teachers[0]
+      data: school[0]
     });
   } catch (error) {
-    console.error('Get teacher by ID error:', error);
+    console.error('Get school by ID error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -169,37 +162,84 @@ const getTeacherById = async (req, res) => {
 };
 
 /**
- * Create new teacher
+ * Get classes by key
  */
-const createTeacher = async (req, res) => {
+
+const searchByKey = async (req, res) => {
+  try {
+    const allowedKeys = [
+      'id',
+      'school_name',
+      'sort_name',
+      'abbr',
+      'gr_name',
+      'sub_name',
+      'state',
+      'ci',
+      'full_name'
+    ]; // whitelist
+    const { key, value } = req.query;
+
+    if (!allowedKeys.includes(key)) {
+      return res.status(400).json({ error: 'Invalid search key' });
+    }
+    const searchTerm = `%${value}%`;
+
+    const sql = `SELECT * FROM tbl_school WHERE ${key} = ? `;
+
+    const classes = await executeQuery(sql, [searchTerm]);
+
+    if (classes.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: 'Data not found'
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      data: classes
+    });
+  } catch (error) {
+    console.error('Get user by ID error:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Internal server error'
+    });
+  }
+};
+/**
+ * Create new school
+ */
+const createschool = async (req, res) => {
   try {
     const { name, email, phone, subject, experience, qualification } = req.body;
 
-    const existingTeachers = await executeQuery('SELECT id FROM teachers WHERE email = ?', [email]);
+    const existingschool = await executeQuery('SELECT id FROM school WHERE email = ?', [email]);
 
-    if (existingTeachers.length > 0) {
+    if (existingschool.length > 0) {
       return res.status(409).json({
         status: false,
-        message: 'Teacher with this email already exists'
+        message: 'school with this email already exists'
       });
     }
 
     const result = await executeQuery(
-      'INSERT INTO teachers (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      'INSERT INTO school (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
       [name, email, phone, subject, experience, qualification, 'active']
     );
 
     res.status(201).json({
       status: true,
-      message: 'Teacher created successfully',
+      message: 'school created successfully',
       data: {
-        teacherId: result.insertId,
+        schoolId: result.insertId,
         name,
         email
       }
     });
   } catch (error) {
-    console.error('Create teacher error:', error);
+    console.error('Create school error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -208,9 +248,9 @@ const createTeacher = async (req, res) => {
 };
 
 /**
- * Update teacher
+ * Update school
  */
-const updateTeacher = async (req, res) => {
+const updateschool = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, phone, subject, experience, qualification } = req.body;
@@ -249,23 +289,23 @@ const updateTeacher = async (req, res) => {
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const query = `UPDATE teachers SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE school SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'school not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher updated successfully'
+      message: 'school updated successfully'
     });
   } catch (error) {
-    console.error('Update teacher error:', error);
+    console.error('Update school error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -274,27 +314,27 @@ const updateTeacher = async (req, res) => {
 };
 
 /**
- * Delete teacher
+ * Delete school
  */
-const deleteTeacher = async (req, res) => {
+const deleteschool = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await executeQuery('DELETE FROM teachers WHERE id = ?', [id]);
+    const result = await executeQuery('DELETE FROM school WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'school not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher deleted successfully'
+      message: 'school deleted successfully'
     });
   } catch (error) {
-    console.error('Delete teacher error:', error);
+    console.error('Delete school error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -303,11 +343,12 @@ const deleteTeacher = async (req, res) => {
 };
 
 module.exports = {
-  getProfile,
-  updateProfile,
-  getAllTeachers,
-  getTeacherById,
-  createTeacher,
-  updateTeacher,
-  deleteTeacher
+  getAllSchool,
+  getById,
+  searchByKey
+  // updateProfile,
+  // getschoolById,
+  // createschool,
+  // updateschool,
+  // deleteschool
 };

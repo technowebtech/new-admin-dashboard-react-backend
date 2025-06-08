@@ -1,12 +1,12 @@
 const express = require('express');
-const roleController = require('../../../controllers/roleController');
+const schoolController = require('../../../controllers/schoolController');
 const { authenticateToken } = require('../../../middleware/auth');
 
 const router = express.Router();
 
 // Apply authentication middleware to all user routes
 router.use(authenticateToken);
-router.get('/list', roleController.getAllRoles);
-router.get('/:id', roleController.getById);
+router.get('/list', schoolController.getAllSchool);
+router.get('/:id', schoolController.getById);
 
 module.exports = router;

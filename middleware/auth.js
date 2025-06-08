@@ -11,7 +11,7 @@ const authenticateToken = async (req, res, next) => {
 
     if (!token) {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Access token is required'
       });
     }
@@ -27,7 +27,7 @@ const authenticateToken = async (req, res, next) => {
 
     if (users.length === 0) {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'User not found or inactive'
       });
     }
@@ -44,21 +44,21 @@ const authenticateToken = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Invalid token'
       });
     }
 
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Token expired'
       });
     }
 
     console.error('Auth middleware error:', error);
     return res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -71,14 +71,14 @@ const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Authentication required'
       });
     }
 
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        status: 'error',
+        status: false,
         message: 'Insufficient permissions'
       });
     }
@@ -87,7 +87,31 @@ const authorize = (...roles) => {
   };
 };
 
+/**
+ * Validation middleware factory
+ */
+const validate = (schema) => {
+  return (req, res, next) => {
+    const { error } = schema.validate({
+      body: req.body,
+      query: req.query,
+      params: req.params
+    });
+
+    if (error) {
+      const errorMessage = error.details.map((detail) => detail.message).join(', ');
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation error',
+        details: errorMessage
+      });
+    }
+
+    next();
+  };
+};
 module.exports = {
+  validate,
   authenticateToken,
   authorize
 };

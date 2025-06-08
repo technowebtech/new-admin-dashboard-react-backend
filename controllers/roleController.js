@@ -35,7 +35,7 @@ const getAllRoles = async (req, res) => {
   } catch (error) {
     console.error('Get all roles error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -55,7 +55,7 @@ const getById = async (req, res) => {
 
     if (roles.length === 0) {
       return res.status(404).json({
-        status: 'error',
+        status: false,
         message: 'Role not found'
       });
     }
@@ -67,7 +67,7 @@ const getById = async (req, res) => {
   } catch (error) {
     console.error('Get role by ID error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }

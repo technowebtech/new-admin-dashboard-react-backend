@@ -11,5 +11,6 @@ router.get("/profile", userController.getProfile)
 router.put("/profile",  userController.updateProfile)
 router.get("/list", authorize("admin"), userController.getAllUsers)
 router.get("/:id",  userController.getUserById)
+router.get("/search/:key/:value",  userController.searchByKey)
 
 module.exports = router

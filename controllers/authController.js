@@ -14,7 +14,7 @@ const register = async (req, res) => {
 
     if (existingUsers.length > 0) {
       return res.status(409).json({
-        status: 'error',
+        status: false,
         message: 'User with this email already exists'
       });
     }
@@ -40,7 +40,7 @@ const register = async (req, res) => {
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }
@@ -62,7 +62,7 @@ const login = async (req, res) => {
 
     if (users.length === 0) {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Invalid email or password'
       });
     }
@@ -72,7 +72,7 @@ const login = async (req, res) => {
     // Check if user is active
     if (!user?.status) {
       return res.status(401).json({
-        status: 'error',
+        status: false,
         message: 'Account is not active'
       });
     }
@@ -101,7 +101,7 @@ const login = async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
-      status: 'error',
+      status: false,
       message: 'Internal server error'
     });
   }

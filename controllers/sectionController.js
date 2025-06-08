@@ -1,30 +1,30 @@
 const { executeQuery } = require('../config/database');
 
 /**
- * Get current teacher profile
+ * Get current section profile
  */
 const getProfile = async (req, res) => {
   try {
-    const teacherId = req.user.id;
+    const clasesId = req.user.id;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?',
-      [teacherId]
+    const section = await executeQuery(
+      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM section WHERE id = ?',
+      [clasesId]
     );
 
-    if (teachers.length === 0) {
+    if (section.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'section not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: teachers[0]
+      data: section[0]
     });
   } catch (error) {
-    console.error('Get teacher profile error:', error);
+    console.error('Get section profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -33,11 +33,11 @@ const getProfile = async (req, res) => {
 };
 
 /**
- * Update current teacher profile
+ * Update current section profile
  */
 const updateProfile = async (req, res) => {
   try {
-    const teacherId = req.user.id;
+    const clasesId = req.user.id;
     const { name, phone, subject, experience, qualification } = req.body;
 
     const updateFields = [];
@@ -72,25 +72,25 @@ const updateProfile = async (req, res) => {
     }
 
     updateFields.push('updated_at = NOW()');
-    updateValues.push(teacherId);
+    updateValues.push(clasesId);
 
-    const query = `UPDATE teachers SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'section not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher profile updated successfully'
+      message: 'section profile updated successfully'
     });
   } catch (error) {
-    console.error('Update teacher profile error:', error);
+    console.error('Update section profile error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -99,36 +99,32 @@ const updateProfile = async (req, res) => {
 };
 
 /**
- * Get all teachers (Admin only)
+ * Get all section (Admin only)
  */
-const getAllTeachers = async (req, res) => {
+const getAllSection = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const countResult = await executeQuery('SELECT COUNT(*) as total FROM teachers', []);
+    const countResult = await executeQuery('SELECT COUNT(*) as total FROM class_section', []);
     const total = countResult[0].total;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers ORDER BY created_at DESC LIMIT ? OFFSET ?',
+    const section = await executeQuery(
+      'select * from class_section ORDER BY class_name asc LIMIT ? OFFSET ?',
       [limit, offset]
     );
 
     res.status(200).json({
       status: true,
-      data: {
-        teachers,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: section
     });
   } catch (error) {
-    console.error('Get all teachers error:', error);
+    console.error('Get all section error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -137,30 +133,27 @@ const getAllTeachers = async (req, res) => {
 };
 
 /**
- * Get teacher by ID
+ * Get section by ID
  */
-const getTeacherById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const teachers = await executeQuery(
-      'SELECT id, name, email, phone, subject, experience, qualification, status, created_at, updated_at FROM teachers WHERE id = ?',
-      [id]
-    );
+    const section = await executeQuery('SELECT * FROM class_section WHERE id = ?', [id]);
 
-    if (teachers.length === 0) {
+    if (section.length === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'section not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      data: teachers[0]
+      data: section[0]
     });
   } catch (error) {
-    console.error('Get teacher by ID error:', error);
+    console.error('Get section by ID error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -169,37 +162,37 @@ const getTeacherById = async (req, res) => {
 };
 
 /**
- * Create new teacher
+ * Create new section
  */
-const createTeacher = async (req, res) => {
+const createclases = async (req, res) => {
   try {
     const { name, email, phone, subject, experience, qualification } = req.body;
 
-    const existingTeachers = await executeQuery('SELECT id FROM teachers WHERE email = ?', [email]);
+    const existingclases = await executeQuery('SELECT id FROM section WHERE email = ?', [email]);
 
-    if (existingTeachers.length > 0) {
+    if (existingclases.length > 0) {
       return res.status(409).json({
         status: false,
-        message: 'Teacher with this email already exists'
+        message: 'section with this email already exists'
       });
     }
 
     const result = await executeQuery(
-      'INSERT INTO teachers (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      'INSERT INTO section (name, email, phone, subject, experience, qualification, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
       [name, email, phone, subject, experience, qualification, 'active']
     );
 
     res.status(201).json({
       status: true,
-      message: 'Teacher created successfully',
+      message: 'section created successfully',
       data: {
-        teacherId: result.insertId,
+        clasesId: result.insertId,
         name,
         email
       }
     });
   } catch (error) {
-    console.error('Create teacher error:', error);
+    console.error('Create section error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -208,9 +201,9 @@ const createTeacher = async (req, res) => {
 };
 
 /**
- * Update teacher
+ * Update section
  */
-const updateTeacher = async (req, res) => {
+const updateclases = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, phone, subject, experience, qualification } = req.body;
@@ -249,23 +242,23 @@ const updateTeacher = async (req, res) => {
     updateFields.push('updated_at = NOW()');
     updateValues.push(id);
 
-    const query = `UPDATE teachers SET ${updateFields.join(', ')} WHERE id = ?`;
+    const query = `UPDATE section SET ${updateFields.join(', ')} WHERE id = ?`;
 
     const result = await executeQuery(query, updateValues);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'section not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher updated successfully'
+      message: 'section updated successfully'
     });
   } catch (error) {
-    console.error('Update teacher error:', error);
+    console.error('Update section error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -274,27 +267,27 @@ const updateTeacher = async (req, res) => {
 };
 
 /**
- * Delete teacher
+ * Delete section
  */
-const deleteTeacher = async (req, res) => {
+const deleteclases = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await executeQuery('DELETE FROM teachers WHERE id = ?', [id]);
+    const result = await executeQuery('DELETE FROM section WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
         status: false,
-        message: 'Teacher not found'
+        message: 'section not found'
       });
     }
 
     res.status(200).json({
       status: true,
-      message: 'Teacher deleted successfully'
+      message: 'section deleted successfully'
     });
   } catch (error) {
-    console.error('Delete teacher error:', error);
+    console.error('Delete section error:', error);
     res.status(500).json({
       status: false,
       message: 'Internal server error'
@@ -303,11 +296,11 @@ const deleteTeacher = async (req, res) => {
 };
 
 module.exports = {
-  getProfile,
-  updateProfile,
-  getAllTeachers,
-  getTeacherById,
-  createTeacher,
-  updateTeacher,
-  deleteTeacher
+  getAllSection,
+  getById
+  // updateProfile,
+  // getclasesById,
+  // createclases,
+  // updateclases,
+  // deleteclases
 };
