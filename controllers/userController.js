@@ -1,4 +1,5 @@
 const { executeQuery } = require('../config/database');
+const encryptionsDecryption = require('../utils/encriptionDEcription');
 
 /**
  * Get current user profile
@@ -7,10 +8,11 @@ const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const users = await executeQuery('select * from tbl_user WHERE id = ? AND status = 1', [
-      userId
-    ]);
-    const { password_new, password, temp_password, ...safeUser } = users[0];
+    const users = await executeQuery(
+      'select *, u.id as userId,p.id as profileId,user_type as role from tbl_user u inner join tbl_profile p on u.id=p.user_id WHERE u.id = ? AND u.status = 1',
+      [userId]
+    );
+    const { password_new, temp_password, id, ...safeUser } = users[0];
 
     if (users.length === 0) {
       return res.status(404).json({
@@ -21,7 +23,7 @@ const getProfile = async (req, res) => {
 
     res.status(200).json({
       status: true,
-      data: safeUser
+      data: encryptionsDecryption.EncryptDataApi(JSON.stringify(safeUser))
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -138,7 +140,6 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const users = await executeQuery('SELECT * FROM tbl_user WHERE id = ?', [id.toString()]);
-    console.log('🚀 ~ getUserById ~ users:', users);
 
     if (users.length === 0) {
       return res.status(404).json({

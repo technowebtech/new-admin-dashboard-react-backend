@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const CryptoJS = require('crypto-js');
 const jwt = require('jsonwebtoken');
 const { executeQuery } = require('../config/database');
 
@@ -20,7 +20,7 @@ const register = async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+    const hashedPassword = CryptoJS.MD5(password).toString();
 
     // Insert new user
     const result = await executeQuery(
@@ -52,7 +52,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const inputPasswordHash = crypto.createHash('md5').update(password).digest('hex');
+    const inputPasswordHash = CryptoJS.MD5(password).toString();
 
     // Find user by email
     const users = await executeQuery(
