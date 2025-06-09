@@ -1,61 +1,29 @@
 {
-  "name": "dps-project",
+  "name": "sms-backend",
   "version": "1.0.0",
-  "description": "Complete Node.js backend with auto-generated Swagger documentation",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon --delay 2 --ignore public/swagger.json --ignore node_modules server.js",
-    "format": "prettier --write .",
-    "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix",
-    "swagger": "node scripts/generate-swagger.js"
+    "dev": "nodemon"
   },
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.21.2",
-    "express-list-endpoints": "^6.0.0",
-    "express-rate-limit": "^7.1.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
     "fs": "^0.0.1-security",
-    "helmet": "^7.1.0",
-    "joi": "^17.11.0",
+    "fs-extra": "^11.3.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
-    "mysql2": "^3.6.5",
+    "mysql2": "^3.14.1",
     "path": "^0.12.7",
-    "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.55.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-node": "^11.1.0",
-    "nodemon": "^3.0.2",
-    "prettier": "^3.1.0"
-  },
-  "nodemonConfig": {
-    "ignore": [
-      "swagger.json",
-      "node_modules/*",
-      "*.log"
-    ],
-    "delay": 2000,
-    "env": {
-      "NODE_ENV": "development"
-    }
-  },
-  "keywords": [
-    "nodejs",
-    "express",
-    "mysql",
-    "swagger",
-    "api",
-    "backend"
-  ],
-  "author": "Your Name",
-  "license": "MIT"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.1.0"
+  }
 }

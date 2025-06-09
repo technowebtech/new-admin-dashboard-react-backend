@@ -101,7 +101,7 @@ const validate = (schema) => {
     if (error) {
       const errorMessage = error.details.map((detail) => detail.message).join(', ');
       return res.status(400).json({
-        status: 'error',
+        status: false,
         message: 'Validation error',
         details: errorMessage
       });
