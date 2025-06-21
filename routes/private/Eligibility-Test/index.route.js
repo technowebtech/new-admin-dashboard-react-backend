@@ -179,6 +179,7 @@ router.use(authenticateToken);
 
 router.get('/list', eligibilityTestController.getAllEligibilityTest);
 router.post('/create', eligibilityTestController.createEligibilityTest);
+router.get('/view/:classId/:sectionId', eligibilityTestController.getEligibilityTestByClassAndSection);
 router.get('/:id', eligibilityTestController.getEligibilityTestById);
 
 module.exports = router;

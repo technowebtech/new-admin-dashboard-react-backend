@@ -1,11 +1,5 @@
 const { executeQuery } = require("../../../config/database");
 /**
- * Search class by key-value pair
- * Method-level enums (apply only to this method)
- * @paramEnum key: ['id','EligibilityTest'] - Search class by key field
- */
-
-/**
  * Get current EligibilityTest profile
  */
 const getProfile = async (req, res) => {
@@ -113,7 +107,6 @@ const getAllEligibilityTest = async (req, res) => {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = Number.parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-
     const countResult = await executeQuery(
       "SELECT COUNT(*) as total FROM eligibility_test",
       []
@@ -123,6 +116,42 @@ const getAllEligibilityTest = async (req, res) => {
     const EligibilityTest = await executeQuery(
       "select e.file_name,e.file_path,c.class_name,cs.classsection_name,e.createdAt, TRIM(CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.mid_name, ''), ' ', COALESCE(p.last_name, ''))) AS fullName from eligibility_test  e  inner join class c on e.class_id=c.id left join class_section cs on cs.id=e.section_id inner join tbl_profile p on p.user_id=e.created_by ORDER BY e.id desc LIMIT ? OFFSET ?",
       [limit.toString(), offset.toString()]
+    );
+
+    res.status(200).json({
+      status: true,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data: EligibilityTest,
+    });
+  } catch (error) {
+    console.error("Get all EligibilityTest error:", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal server error",
+    });
+  }
+};
+const getEligibilityTestByClassAndSection = async (req, res) => {
+  try {
+    const { classId, sectionId } = req.query;
+    if (!sectionId && !sectionId) {
+      return res.status(404).json({
+        status: false,
+        message: "Section Id & class Id are require",
+      });
+    }
+    const countResult = await executeQuery(
+      "SELECT COUNT(*) as total FROM eligibility_test",
+      []
+    );
+    const total = countResult[0].total;
+
+    const EligibilityTest = await executeQuery(
+      "select e.file_name,e.file_path,c.class_name,cs.classsection_name,e.createdAt, TRIM(CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.mid_name, ''), ' ', COALESCE(p.last_name, ''))) AS fullName from eligibility_test  e  inner join class c on e.class_id=c.id left join class_section cs on cs.id=e.section_id inner join tbl_profile p on p.user_id=e.created_by where e.class_id =?  AND e.section_id=? ORDER BY  rand() limit 1",
+      [classId, sectionId]
     );
 
     res.status(200).json({
@@ -344,6 +373,7 @@ module.exports = {
   getAllEligibilityTest,
   getEligibilityTestById,
   createEligibilityTest,
+  getEligibilityTestByClassAndSection
 
   // updateProfile,
   // getEligibilityTestById,
